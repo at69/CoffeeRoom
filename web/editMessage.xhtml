@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <ui:param name="message" value="#{messageController.selected}"/>
+        <title><h:outputText value="Edit message - CoffeeRoom"/></title>
+    </h:head>
+    <h:body>
+        <ui:composition template="/template.xhtml">
+            <ui:define name="body">
+                <h:panelGroup rendered="#{login.checkAuthenticate() == false}">
+                    <p>
+                        You need to be logged in to go here.<br/>
+                        Click <a href="/CoffeeRoom/login.xhtml?faces-redirect=true">HERE</a> to log in.<br/>
+                        Don't have an account yet? Create one <a href="/CoffeeRoom/register.xhtml?faces-redirect=true">HERE</a>!
+                    </p>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{login.checkAuthenticate()}">
+                    <ui:param name="currentTopic" value="#{topicController.getTopic(message.getTopicId())}"/>
+                    <h:panelGroup id="messagePanel" layout="block">
+                        <h:messages errorStyle="color: red" infoStyle="color: green" layout="table"/>
+                    </h:panelGroup>
+                    <h:form class="form-horizontal">
+                        <fieldset>
+                            <legend>Edit message in topic "<h:outputText value="#{currentTopic.getName()}"/>":</legend>
+                            Remarque: vous pouvez utiliser des balises HTML (et donc du CSS) dans vos messages!
+                            <div class="form-group">
+                                <div class="col-lg-10">
+                                    <h:inputHidden class="form-control" id="topicId" value="#{messageController.selected.topicId}" required="true"/>              
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <h:outputLabel value="Author" for="author" class="col-lg-2 control-label"/>
+                                <div class="col-lg-2 control-label" style="text-align: initial;">
+                                    <ui:param name="author" value="#{userController.getUser(message.getAuthorId())}"/>
+                                    <h:outputText id="author" value="#{author.getLastname()} #{author.getFirstname()}"/>              
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <h:outputLabel value="Creation date" for="date" class="col-lg-2 control-label"/>
+                                <div class="col-lg-2 control-label" style="text-align: initial;">
+                                    <h:outputText id="date" value="#{message.getCreationDate()}">
+                                        <f:convertDateTime pattern="dd MMM yyyy 'at' HH:mm" locale="us"/>
+                                    </h:outputText>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <h:outputLabel value="Content" for="content" class="col-lg-2 control-label"/>
+                                <div class="col-lg-10">
+                                    <h:inputTextarea rows="10" class="form-control" id="content" value="#{messageController.selected.content}" title="Content of the message" required="true" requiredMessage="Please specify a content"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-10 col-lg-offset-2">
+                                    <h:button outcome="#{topicController.prepareView(currentTopic)}" value="Cancel" class="btn btn-default"/>
+                                    <h:outputText value="  "/>
+                                    <h:commandButton action="#{messageController.updateMessage()}" value="#{bundle.EditMessageSaveLink}" class="btn btn-primary"/>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </h:form>
+                </h:panelGroup>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

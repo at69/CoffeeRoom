@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <h:head>
+        <ui:param name="category" value="#{categoryController.selected}"/>
+        <title><h:outputText value="#{category.getName()} - CoffeeRoom"/></title>
+    </h:head>
+    <h:body>
+        <ui:composition template="/template.xhtml">
+            <ui:define name="body">
+                <h:panelGroup rendered="#{login.checkAuthenticate() == false}">
+                    <p>
+                        You need to be logged in to go here.<br/>
+                        Click <a href="/CoffeeRoom/login.xhtml?faces-redirect=true">HERE</a> to log in.<br/>
+                        Don't have an account yet? Create one <a href="/CoffeeRoom/register.xhtml?faces-redirect=true">HERE</a>!
+                    </p>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{login.checkAuthenticate()}">
+                    <ui:param name="currentUser" value="#{userController.findUserByConnectionToken(login.getConnectionToken())}"/>
+                    <h:panelGroup rendered="#{currentUser.roleId != 1}">
+                        <p>
+                            You cannot access this page, only administrators can.
+                        </p>
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{currentUser.roleId == 1}">
+                        <h:panelGroup id="messagePanel" layout="block">
+                            <h:messages errorStyle="color: red" infoStyle="color: green" layout="table"/>
+                        </h:panelGroup>
+                        <h:form class="form-horizontal">
+                            <fieldset>
+                                <legend><h:outputText value="Edit category #{category.getName()}"/></legend>
+                                <div class="form-group">
+                                    <h:outputLabel value="Title" for="name" class="col-lg-2 control-label"/>
+                                    <div class="col-lg-10">
+                                        <h:inputText class="form-control" id="name" value="#{categoryController.selected.name}" title="Title of the category" required="true" requiredMessage="Please specify a title"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <h:outputLabel value="#{bundle.CreateCategoryLabel_description}" for="description" class="col-lg-2 control-label"/>
+                                    <div class="col-lg-10">
+                                        <h:inputText class="form-control" id="description" value="#{categoryController.selected.description}" title="#{bundle.CreateCategoryTitle_description}"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-10 col-lg-offset-2">
+                                        <h:commandButton action="#{categoryController.updateCategory()}" value="#{bundle.CreateCategorySaveLink}" class="btn btn-primary"/>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </h:form>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

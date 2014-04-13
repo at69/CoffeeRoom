@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:composition template="/template.xhtml">
+        <ui:define name="title">
+            <h:outputText value="#{bundle.ListMessageTitle}"></h:outputText>
+        </ui:define>
+        <ui:define name="body">
+            <h:form styleClass="jsfcrud_list_form">
+                <h:panelGroup id="messagePanel" layout="block">
+                    <h:messages errorStyle="color: red" infoStyle="color: green" layout="table"/>
+                </h:panelGroup>
+                <h:outputText escape="false" value="#{bundle.ListMessageEmpty}" rendered="#{messageController.items.rowCount == 0}"/>
+                <h:panelGroup rendered="#{messageController.items.rowCount > 0}">
+                    <h:outputText value="#{messageController.pagination.pageFirstItem + 1}..#{messageController.pagination.pageLastItem + 1}/#{messageController.pagination.itemsCount}"/>&nbsp;
+                    <h:commandLink action="#{messageController.previous}" value="#{bundle.Previous} #{messageController.pagination.pageSize}" rendered="#{messageController.pagination.hasPreviousPage}"/>&nbsp;
+                    <h:commandLink action="#{messageController.next}" value="#{bundle.Next} #{messageController.pagination.pageSize}" rendered="#{messageController.pagination.hasNextPage}"/>&nbsp;
+                    <h:dataTable value="#{messageController.items}" var="item" border="0" cellpadding="2" cellspacing="0" rowClasses="jsfcrud_odd_row,jsfcrud_even_row" rules="all" style="border:solid 1px">
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListMessageTitle_id}"/>
+                            </f:facet>
+                            <h:outputText value="#{item.id}"/>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListMessageTitle_creationDate}"/>
+                            </f:facet>
+                            <h:outputText value="#{item.creationDate}">
+                                <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
+                            </h:outputText>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListMessageTitle_topicId}"/>
+                            </f:facet>
+                            <h:outputText value="#{item.topicId}"/>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListMessageTitle_authorId}"/>
+                            </f:facet>
+                            <h:outputText value="#{item.authorId}"/>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListMessageTitle_content}"/>
+                            </f:facet>
+                            <h:outputText value="#{item.content}"/>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="&nbsp;"/>
+                            </f:facet>
+                            <h:commandLink action="#{messageController.prepareView}" value="#{bundle.ListMessageViewLink}"/>
+                            <h:outputText value=" "/>
+                            <h:commandLink action="#{messageController.prepareEdit}" value="#{bundle.ListMessageEditLink}"/>
+                            <h:outputText value=" "/>
+                            <h:commandLink action="#{messageController.destroy}" value="#{bundle.ListMessageDestroyLink}"/>
+                        </h:column>
+                    </h:dataTable>
+                </h:panelGroup>
+                <br />
+                <h:commandLink action="#{messageController.prepareCreate}" value="#{bundle.ListMessageCreateLink}"/>
+            </h:form>
+        </ui:define>
+    </ui:composition>
+
+</html>

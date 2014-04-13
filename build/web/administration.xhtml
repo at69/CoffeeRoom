@@ -1,0 +1,172 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Administration panel - CoffeeRoom</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="/template.xhtml">
+            <ui:define name="body">
+                <h:panelGroup rendered="#{login.checkAuthenticate() == false}">
+                    <p>
+                        You need to be logged in to go here.<br/>
+                        Click <a href="/CoffeeRoom/login.xhtml?faces-redirect=true">HERE</a> to log in.<br/>
+                        Don't have an account yet? Create one <a href="/CoffeeRoom/register.xhtml?faces-redirect=true">HERE</a>!
+                    </p>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{login.checkAuthenticate()}">
+                    <ui:param name="currentUser" value="#{userController.findUserByConnectionToken(login.getConnectionToken())}"/>
+                    <h:panelGroup rendered="#{currentUser.roleId != 1}">
+                        <p>
+                            You cannot access this page, only administrators can.
+                        </p>
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{currentUser.roleId == 1}">
+                        <h:panelGroup id="messagePanel" layout="block">
+                            <h:messages errorStyle="color: red" infoStyle="color: green" layout="table"/>
+                        </h:panelGroup>
+                        <h2>Administrator panel</h2>
+                        <ul class="nav nav-tabs" style="margin-bottom: 15px;">
+                            <li class="active"><a href="#categories" data-toggle="tab">Categories</a></li>
+                            <li><a href="#newCategory" data-toggle="tab">Create a category</a></li>
+                            <li><a href="#boards" data-toggle="tab">Boards</a></li>
+                            <li><a href="#newBoard" data-toggle="tab">Create a board</a></li>
+                        </ul>
+                        <div id="adminPanel" class="tab-content">
+                            <div class="tab-pane fade active in" id="categories">
+                                <h:form>
+                                    <h:outputText escape="false" value="#{bundle.ListCategoryEmpty}" rendered="#{categoryController.items.rowCount == 0}"/>
+                                    <h:panelGroup rendered="#{categoryController.items.rowCount > 0}">
+                                        <h:outputText value="#{categoryController.pagination.pageFirstItem + 1}..#{categoryController.pagination.pageLastItem + 1}/#{categoryController.pagination.itemsCount}"/>&nbsp;
+                                        <h:commandLink action="#{categoryController.previousCategories}" value="#{bundle.Previous} #{categoryController.pagination.pageSize}" rendered="#{categoryController.pagination.hasPreviousPage}"/>&nbsp;
+                                        <h:commandLink action="#{categoryController.nextCategories}" value="#{bundle.Next} #{categoryController.pagination.pageSize}" rendered="#{categoryController.pagination.hasNextPage}"/>&nbsp;
+                                        <h:dataTable value="#{categoryController.items}" var="category" class="table table-striped table-hover">
+                                            <h:column>
+                                                <h:outputText value="#{category.name}"/>
+                                            </h:column>
+                                            <h:column>
+                                                <h:outputText value="#{category.description}"/>
+                                            </h:column>
+                                            <h:column>
+                                                <h:outputText value="#{category.creationDate}">
+                                                    <f:convertDateTime pattern="dd MMM yyyy 'at' HH:mm" locale="us"/>
+                                                </h:outputText>
+                                            </h:column>
+                                            <h:column>
+                                                <ui:param name="author" value="#{userController.getUser(category.authorId)}"/>
+                                                <h:outputText value="#{author.getLastname()} #{author.getFirstname()}"/>
+                                            </h:column>
+                                            <h:column>
+                                                <h:commandLink action="#{categoryController.prepareEditCategory()}" value="Edit"/>
+                                                <h:outputText value=" | "/>
+                                                <h:commandLink action="#{categoryController.destroyCategory()}" value="Remove"/>
+                                            </h:column>
+                                        </h:dataTable>
+                                    </h:panelGroup>
+                                </h:form>
+                            </div>
+                            <div class="tab-pane fade" id="newCategory">
+                                <h:form class="form-horizontal">
+                                    <fieldset>
+                                        <legend>Create a new category</legend>
+                                        <div class="form-group">
+                                            <h:outputLabel value="Title" for="name" class="col-lg-2 control-label"/>
+                                            <div class="col-lg-10">
+                                                <h:inputText class="form-control" id="name" value="#{categoryController.selected.name}" title="Title of the category" required="true" requiredMessage="Please specify a title"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <h:outputLabel value="#{bundle.CreateCategoryLabel_description}" for="description" class="col-lg-2 control-label"/>
+                                            <div class="col-lg-10">
+                                                <h:inputText class="form-control" id="description" value="#{categoryController.selected.description}" title="#{bundle.CreateCategoryTitle_description}"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="col-lg-10 col-lg-offset-2">
+                                                <h:commandButton action="#{categoryController.createCategory()}" value="#{bundle.CreateCategorySaveLink}" class="btn btn-primary"/>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </h:form>
+                            </div>
+                            <div class="tab-pane fade" id="boards">
+                               <h:form>
+                                    <h:outputText escape="false" value="#{bundle.ListBoardEmpty}" rendered="#{boardController.items.rowCount == 0}"/>
+                                    <h:panelGroup rendered="#{boardController.items.rowCount > 0}">
+                                        <h:outputText value="#{boardController.pagination.pageFirstItem + 1}..#{boardController.pagination.pageLastItem + 1}/#{boardController.pagination.itemsCount}"/>&nbsp;
+                                        <h:commandLink action="#{boardController.previousBoards}" value="#{bundle.Previous} #{boardController.pagination.pageSize}" rendered="#{boardController.pagination.hasPreviousPage}"/>&nbsp;
+                                        <h:commandLink action="#{boardController.nextBoards}" value="#{bundle.Next} #{boardController.pagination.pageSize}" rendered="#{boardController.pagination.hasNextPage}"/>&nbsp;
+                                        <h:dataTable value="#{boardController.items}" var="board" class="table table-striped table-hover">
+                                            <ui:param name="categoryOfBoard" value="#{categoryController.getCategory(board.categoryId)}"/>
+                                            <h:column>
+                                                <h:outputText value="#{board.name}"/>
+                                            </h:column>
+                                            <h:column>
+                                                <h:outputText value="#{board.description}"/>
+                                            </h:column>
+                                            <h:column>
+                                                <h:outputText value="in #{categoryOfBoard.name}"/>
+                                            </h:column>
+                                            <h:column>
+                                                <h:outputText value="#{board.creationDate}">
+                                                    <f:convertDateTime pattern="dd MMM yyyy 'at' HH:mm" locale="us"/>
+                                                </h:outputText>
+                                            </h:column>
+                                            <h:column>
+                                                <ui:param name="author" value="#{userController.getUser(board.authorId)}"/>
+                                                <h:outputText value="#{author.getLastname()} #{author.getFirstname()}"/>
+                                            </h:column>
+                                            <h:column>
+                                                <h:commandLink action="#{boardController.prepareView(board)}" value="View"/>
+                                                <h:outputText value=" | "/>
+                                                <h:commandLink action="#{boardController.prepareEditBoard()}" value="Edit"/>
+                                                <h:outputText value=" | "/>
+                                                <h:commandLink action="#{boardController.destroyBoard()}" value="Remove"/>
+                                            </h:column>
+                                        </h:dataTable>
+                                    </h:panelGroup>
+                                </h:form> 
+                            </div>
+                            <div class="tab-pane fade" id="newBoard">
+                                <h:form class="form-horizontal">
+                                    <fieldset>
+                                        <legend>Create a new board</legend>
+                                        <div class="form-group">
+                                            <h:outputLabel value="Title" for="name" class="col-lg-2 control-label"/>
+                                            <div class="col-lg-10">
+                                                <h:inputText class="form-control" id="name" value="#{boardController.selected.name}" title="Title of the board" required="true" requiredMessage="Please specify a title"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <h:outputLabel value="#{bundle.CreateBoardLabel_description}" for="description" class="col-lg-2 control-label"/>
+                                            <div class="col-lg-10">
+                                                <h:inputText class="form-control" id="description" value="#{boardController.selected.description}" title="#{bundle.CreateBoardTitle_description}"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <h:outputLabel value="Category" for="categoryId" class="col-lg-2 control-label"/>
+                                            <div class="col-lg-10">
+                                                <h:selectOneMenu id="categoryId" class="form-control" value="#{boardController.selected.categoryId}">
+                                                    <f:selectItems value="#{categoryController.items}" var="categoryForBoard"
+                                                                   itemLabel="#{categoryForBoard.name}" itemValue="#{categoryForBoard.id}"/>
+                                                </h:selectOneMenu>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="col-lg-10 col-lg-offset-2">
+                                                <h:commandButton action="#{boardController.createBoard()}" value="#{bundle.CreateBoardSaveLink}" class="btn btn-primary"/>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </h:form>
+                            </div>
+                        </div>    
+                    </h:panelGroup>
+                </h:panelGroup>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

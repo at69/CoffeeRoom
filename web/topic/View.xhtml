@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:composition template="/template.xhtml">
+        <ui:define name="title">
+            <h:outputText value="#{bundle.ViewTopicTitle}"></h:outputText>
+        </ui:define>
+        <ui:define name="body">
+            <h:panelGroup id="messagePanel" layout="block">
+                <h:messages errorStyle="color: red" infoStyle="color: green" layout="table"/>
+            </h:panelGroup>
+            <h:form>
+                <h:panelGrid columns="2">
+                    <h:outputText value="#{bundle.ViewTopicLabel_id}"/>
+                    <h:outputText value="#{topicController.selected.id}" title="#{bundle.ViewTopicTitle_id}"/>
+                    <h:outputText value="#{bundle.ViewTopicLabel_name}"/>
+                    <h:outputText value="#{topicController.selected.name}" title="#{bundle.ViewTopicTitle_name}"/>
+                    <h:outputText value="#{bundle.ViewTopicLabel_description}"/>
+                    <h:outputText value="#{topicController.selected.description}" title="#{bundle.ViewTopicTitle_description}"/>
+                    <h:outputText value="#{bundle.ViewTopicLabel_creationDate}"/>
+                    <h:outputText value="#{topicController.selected.creationDate}" title="#{bundle.ViewTopicTitle_creationDate}">
+                        <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
+                    </h:outputText>
+                    <h:outputText value="#{bundle.ViewTopicLabel_isLocked}"/>
+                    <h:outputText value="#{topicController.selected.isLocked}" title="#{bundle.ViewTopicTitle_isLocked}"/>
+                    <h:outputText value="#{bundle.ViewTopicLabel_authorId}"/>
+                    <h:outputText value="#{topicController.selected.authorId}" title="#{bundle.ViewTopicTitle_authorId}"/>
+                    <h:outputText value="#{bundle.ViewTopicLabel_boardId}"/>
+                    <h:outputText value="#{topicController.selected.boardId}" title="#{bundle.ViewTopicTitle_boardId}"/>
+                </h:panelGrid>
+                <br />
+                <h:commandLink action="#{topicController.destroyAndView}" value="#{bundle.ViewTopicDestroyLink}"/>
+                <br />
+                <br />
+                <h:link outcome="Edit" value="#{bundle.ViewTopicEditLink}"/>
+                <br />
+                <h:commandLink action="#{topicController.prepareCreate}" value="#{bundle.ViewTopicCreateLink}" />
+                <br />
+                <h:commandLink action="#{topicController.prepareList}" value="#{bundle.ViewTopicShowAllLink}"/>
+            </h:form>
+        </ui:define>
+    </ui:composition>
+
+</html>

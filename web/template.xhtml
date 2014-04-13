@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8' ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <f:facet name="first">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        </f:facet>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <h:outputStylesheet name="css/bootstrap.css"/>
+        <h:outputStylesheet name="css/normalize.css"/>
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+    </h:head>
+
+    <h:body>
+        <div class="container">
+            <div class="navbar navbar-default">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <h:link class="navbar-brand" outcome="/home.xhtml?faces-redirect=true" value="CoffeeRoom" />
+                </div>
+                <div class="navbar-collapse collapse navbar-responsive-collapse">
+                    <ul class="nav navbar-nav navbar-right">
+                        <h:panelGroup rendered="#{login.checkAuthenticate() == false}">
+                            <li>
+                                <h:link outcome="/login?faces-redirect=true" value="#{bundle.Login}"/>   
+                            </li>
+                            <li>
+                                <h:link outcome="/register?faces-redirect=true" value="#{bundle.Register}"/>    
+                            </li>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{login.checkAuthenticate()}">
+                            <ui:param name="currentUser" value="#{userController.findUserByConnectionToken(login.getConnectionToken())}"/>
+                            <h:panelGroup rendered="#{currentUser.roleId == 1}">
+                                <li>
+                                    <h:link outcome="/administration.xhtml?faces-redirect=true" value="Administration"/>    
+                                </li>
+                            </h:panelGroup>
+                            <li>
+                                <h:link outcome="#{login.goToProfile()}" value="My account"/>    
+                            </li>
+                            <li>
+                                <h:link outcome="/logout.xhtml?faces-redirect=true" value="#{bundle.Logout}"/>    
+                            </li>
+                        </h:panelGroup>
+                    </ul>
+                </div>
+            </div>
+
+            <h1>
+                <ui:insert name="title"></ui:insert>
+            </h1>
+            <p>
+                <ui:insert name="body"></ui:insert>
+            </p>
+        </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <h:outputScript name="js/bootstrap.min.js"/>
+    </h:body>
+</html>

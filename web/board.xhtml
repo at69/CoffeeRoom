@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <ui:param name="currentBoard" value="#{boardController.selected}"/>
+    <h:head>
+        <title><h:outputText value="#{currentBoard.getName()} - CoffeeRoom"/></title>
+    </h:head>
+    <h:body>
+        <ui:composition template="/template.xhtml">
+            <ui:define name="body">
+                <h:panelGroup rendered="#{login.checkAuthenticate() == false}">
+                    <p>
+                        You need to be logged in to view the topics.<br/>
+                        Click <a href="/CoffeeRoom/login.xhtml?faces-redirect=true">HERE</a> to log in.<br/>
+                        Don't have an account yet? Create one <a href="/CoffeeRoom/register.xhtml?faces-redirect=true">HERE</a>!
+                    </p>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{login.checkAuthenticate()}">
+                    <ui:param name="currentUser" value="#{userController.findUserByConnectionToken(login.getConnectionToken())}"/>
+                    <h:form>
+                        <h:panelGroup id="messagePanel" layout="block">
+                            <h:messages errorStyle="color: red" infoStyle="color: green" layout="table"/>
+                        </h:panelGroup>
+                        <ul class="breadcrumb">
+                            <ui:param name="category" value="#{categoryController.getCategory(currentBoard.categoryId)}"/>
+                            <li><h:outputText value="#{category.name}"/></li>
+                            <li class="active"><h:outputText value="#{currentBoard.name}"/></li>
+                        </ul>
+                        <h:panelGroup id="newTopic">
+                            <h:commandLink action="#{topicController.prepareNewTopic(currentBoard)}" value="NEW TOPIC"/>
+                        </h:panelGroup><br/>
+                        <ui:param name="topics" value="#{boardController.getTopics(currentBoard)}"/>
+                        <h:outputText escape="false" value="#{bundle.ListTopicEmpty}" rendered="#{topics.size() == 0}"/>
+                        <h:panelGroup rendered="#{topics.size() > 0}">
+                            <h:panelGroup rendered="#{boardController.getSize() == 10}">
+                                <ul class="pagination pagination-sm">
+                                    <h:panelGroup rendered="#{(boardController.getPaginator().first + 1) == boardController.getPaginator().pageIndex}">
+                                        <li class="disabled"><a href="#">&laquo;</a></li>
+                                        <li class="disabled"><a href="#">&lt;</a></li>
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{(boardController.getPaginator().first + 1) != boardController.getPaginator().pageIndex}">
+                                        <li><h:commandLink action="#{boardController.getPaginator().goToFirst()}" value="&laquo;"/></li>
+                                        <li><h:commandLink action="#{boardController.getPaginator().prev}" value="&lt;"/></li>
+                                        <li><a href="#">...</a></li>
+                                    </h:panelGroup>     
+                                    <li class="active"><a href="#"><h:outputText value="#{boardController.getPaginator().pageIndex}"/></a></li>
+                                    <h:panelGroup rendered="#{boardController.getPaginator().pages != boardController.getPaginator().pageIndex}">
+                                        <li><a href="#">...</a></li>
+                                        <li><h:commandLink value="&gt;" action="#{boardController.getPaginator().next}"/></li>
+                                        <li><h:commandLink value="&raquo;" action="#{boardController.getPaginator().goToLast()}"/></li>
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{boardController.getPaginator().pages == boardController.getPaginator().pageIndex}">
+                                        <li class="disabled"><a href="#">&gt;</a></li>
+                                        <li class="disabled"><a href="#">&raquo;</a></li>
+                                    </h:panelGroup>
+                                </ul>
+                                <div style="text-align: right;">
+                                    <h:outputText value="page #{boardController.getPaginator().pageIndex} / #{boardController.getPaginator().pages}"/>
+                                </div>
+                            </h:panelGroup>
+                            <table class="table table-striped table-hover">
+                                <tr class="danger">
+                                    <td><h:outputText value="#{currentBoard.getName()}"/></td>
+                                    <td><h:outputText value="#{currentBoard.getDescription()}"/></td>
+                                </tr>
+                                <ui:repeat value="#{boardController.getPaginator().model}" var="topic"> 
+                                    <h:panelGroup rendered="#{topic != null}">
+                                        <tr>
+                                            <td>
+                                                <h:commandLink action="#{topicController.prepareView(topic)}" value="#{topic.name}"/><br/>
+                                                <h:outputText value="#{topic.description}"/>
+                                            </td>
+                                            <ui:param name="author" value="#{userController.getUser(topic.authorId)}"/>
+                                            <td><h:outputText value="#{author.getLastname()} #{author.getFirstname()}"/></td>
+                                            <td>
+                                                <h:outputText value="#{topic.creationDate}">
+                                                    <f:convertDateTime pattern="dd MMM yyyy 'at' HH:mm" locale="us"/>
+                                                </h:outputText>
+                                            </td>
+                                            <h:panelGroup rendered="#{currentUser.roleId == 1 || currentUser.roleId == 2}">
+                                                <td>
+                                                    <h:commandLink action="#{topicController.prepareEdit(topic)}" value="Edit"/>
+                                                    <h:outputText value=" | "/>
+                                                    <h:commandLink action="#{topicController.destroyTopic(topic)}" value="Remove"/>
+                                                    <h:outputText value=" | "/>
+                                                    <h:commandLink action="#{topicController.lock(topic)}" value="Lock" rendered="#{topic.isLocked == false}"/>
+                                                    <h:commandLink action="#{topicController.unlock(topic)}" value="Unlock" rendered="#{topic.isLocked == true}"/>
+                                                </td>
+                                                <td>
+                                                    <h:selectOneMenu class="form-control" onchange="submit()"
+                                                                     valueChangeListener="#{topicController.mergeTopicListener}"
+                                                                     value="0">
+                                                        <f:attribute name="childTopic" value="#{topic}"/>
+                                                        <f:selectItem itemLabel="Merge in..." itemValue="0" noSelectionOption="true"/>
+                                                        <f:selectItems value="#{topicController.findTopicByBoard(currentBoard)}" var="parentTopic"
+                                                                       itemLabel="#{parentTopic.name}" itemValue="#{parentTopic.id}"
+                                                                       itemDisabled="#{parentTopic.id == topic.id}"/>
+                                                    </h:selectOneMenu>
+                                                </td>
+                                                <td>
+                                                    <h:selectOneMenu class="form-control" onchange="submit()"
+                                                                     valueChangeListener="#{topicController.topicBoardChanged}">
+                                                        <f:attribute name="topic" value="#{topic}"/>
+                                                        <f:selectItem itemLabel="Move to board..." noSelectionOption="true"/>
+                                                        <f:selectItems value="#{boardController.items}" var="board"
+                                                                       itemLabel="#{board.name}" itemValue="#{board.id}"
+                                                                       itemDisabled="#{currentBoard.getId() == board.id}"/>
+                                                    </h:selectOneMenu>
+                                                </td>
+                                            </h:panelGroup>
+                                        </tr>
+                                    </h:panelGroup>
+                                </ui:repeat>
+                            </table>
+                            <ul class="pagination pagination-sm">
+                                <h:panelGroup rendered="#{(boardController.getPaginator().first + 1) == boardController.getPaginator().pageIndex}">
+                                    <li class="disabled"><a href="#">&laquo;</a></li>
+                                    <li class="disabled"><a href="#">&lt;</a></li>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{(boardController.getPaginator().first + 1) != boardController.getPaginator().pageIndex}">
+                                    <li><h:commandLink action="#{boardController.getPaginator().goToFirst()}" value="&laquo;"/></li>
+                                    <li><h:commandLink action="#{boardController.getPaginator().prev}" value="&lt;"/></li>
+                                    <li><a href="#">...</a></li>
+                                </h:panelGroup>     
+                                <li class="active"><a href="#"><h:outputText value="#{boardController.getPaginator().pageIndex}"/></a></li>
+                                <h:panelGroup rendered="#{boardController.getPaginator().pages != boardController.getPaginator().pageIndex}">
+                                    <li><a href="#">...</a></li>
+                                    <li><h:commandLink value="&gt;" action="#{boardController.getPaginator().next}"/></li>
+                                    <li><h:commandLink value="&raquo;" action="#{boardController.getPaginator().goToLast()}"/></li>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{boardController.getPaginator().pages == boardController.getPaginator().pageIndex}">
+                                    <li class="disabled"><a href="#">&gt;</a></li>
+                                    <li class="disabled"><a href="#">&raquo;</a></li>
+                                </h:panelGroup>
+                            </ul>
+                            <div style="text-align: right;">
+                                <h:outputText value="page #{boardController.getPaginator().pageIndex} / #{boardController.getPaginator().pages}"/>
+                            </div>
+                        </h:panelGroup>
+                    </h:form>  
+                </h:panelGroup>    
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

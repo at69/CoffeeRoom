@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <h:head>
+        <title><h:outputText value="New topic - CoffeeRoom"/></title>
+    </h:head>
+    <h:body>
+        <ui:composition template="/template.xhtml">
+            <ui:define name="body">
+                <h:panelGroup rendered="#{login.checkAuthenticate() == false}">
+                    <p>
+                        You need to be logged in to view the topics.<br/>
+                        Click <a href="/CoffeeRoom/login.xhtml?faces-redirect=true">HERE</a> to log in.<br/>
+                        Don't have an account yet? Create one <a href="/CoffeeRoom/register.xhtml?faces-redirect=true">HERE</a>!
+                    </p>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{login.checkAuthenticate()}">
+                    <ui:param name="newTopic" value="#{topicController.selected}"/>
+                    <ui:param name="board" value="#{boardController.getBoard(newTopic.getBoardId())}"/>
+                    <h:panelGroup id="messagePanel" layout="block">
+                        <h:messages errorStyle="color: red" infoStyle="color: green" layout="table"/>
+                    </h:panelGroup>
+                    <h:form class="form-horizontal">
+                        <fieldset>
+                            <legend>Create a new topic in board "<h:outputText value="#{board.getName()}"/>"</legend>
+                            <div class="form-group">
+                                <h:outputLabel value="Title" for="name" class="col-lg-2 control-label"/>
+                                <div class="col-lg-10">
+                                    <h:inputText class="form-control" id="name" value="#{topicController.selected.name}" title="Title of the topic" required="true" requiredMessage="Please specify a title"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <h:outputLabel value="#{bundle.CreateTopicLabel_description}" for="description" class="col-lg-2 control-label"/>
+                                <div class="col-lg-10">
+                                    <h:inputText class="form-control" id="description" value="#{topicController.selected.description}" title="#{bundle.CreateTopicTitle_description}"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-10">
+                                    <h:inputHidden class="form-control" id="boardId" value="#{topicController.selected.boardId}" required="true" requiredMessage="#{bundle.CreateTopicRequiredMessage_boardId}"/>              
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-10 col-lg-offset-2">
+                                    <h:button outcome="#{boardController.prepareView(board)}" value="Cancel" class="btn btn-default"/>
+                                    <h:outputText value="  "/>
+                                    <h:commandButton action="#{topicController.createNewTopic()}" value="#{bundle.CreateTopicSaveLink}" class="btn btn-primary"/>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </h:form>
+                </h:panelGroup>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

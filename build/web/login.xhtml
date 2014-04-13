@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <h:head>
+        <title>Login - CoffeeRoom</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="/template.xhtml">
+            <ui:define name="body">
+                <h:form class="form-horizontal">
+                    <fieldset>
+                        <legend>Login</legend>
+                        <div class="form-group">
+                            <h:outputLabel value="Username" for="username" class="col-lg-2 control-label"/>
+                            <div class="col-lg-10">
+                                <h:inputText id="username" value="#{login.username}" class="form-control" required="true"/>    
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <h:outputLabel value="Password" for="password" class="col-lg-2 control-label"/>
+                            <div class="col-lg-10">
+                                <h:inputSecret id="password" value="#{login.password}" class="form-control" required="true"/>   
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-lg-10 col-lg-offset-2">
+                                <h:commandButton action="#{login.authenticate}" value="Sign in" class="btn btn-primary"/><br/>
+                            </div>    
+                        </div>
+                        <div class="form-group">
+                            <div class="col-lg-10">
+                                <h:outputLabel style="color: red"> #{login.message} </h:outputLabel>      
+                            </div>
+                        </div>
+                    </fieldset>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

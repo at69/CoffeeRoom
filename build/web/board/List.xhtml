@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:composition template="/template.xhtml">
+        <ui:define name="title">
+            <h:outputText value="#{bundle.ListBoardTitle}"></h:outputText>
+        </ui:define>
+        <ui:define name="body">
+            <h:form styleClass="jsfcrud_list_form">
+                <h:panelGroup id="messagePanel" layout="block">
+                    <h:messages errorStyle="color: red" infoStyle="color: green" layout="table"/>
+                </h:panelGroup>
+                <h:outputText escape="false" value="#{bundle.ListBoardEmpty}" rendered="#{boardController.items.rowCount == 0}"/>
+                <h:panelGroup rendered="#{boardController.items.rowCount > 0}">
+                    <h:outputText value="#{boardController.pagination.pageFirstItem + 1}..#{boardController.pagination.pageLastItem + 1}/#{boardController.pagination.itemsCount}"/>&nbsp;
+                    <h:commandLink action="#{boardController.previous}" value="#{bundle.Previous} #{boardController.pagination.pageSize}" rendered="#{boardController.pagination.hasPreviousPage}"/>&nbsp;
+                    <h:commandLink action="#{boardController.next}" value="#{bundle.Next} #{boardController.pagination.pageSize}" rendered="#{boardController.pagination.hasNextPage}"/>&nbsp;
+                    <h:dataTable value="#{boardController.items}" var="item" border="0" cellpadding="2" cellspacing="0" rowClasses="jsfcrud_odd_row,jsfcrud_even_row" rules="all" style="border:solid 1px">
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListBoardTitle_id}"/>
+                            </f:facet>
+                            <h:outputText value="#{item.id}"/>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListBoardTitle_name}"/>
+                            </f:facet>
+                            <h:outputText value="#{item.name}"/>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListBoardTitle_description}"/>
+                            </f:facet>
+                            <h:outputText value="#{item.description}"/>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListBoardTitle_creationDate}"/>
+                            </f:facet>
+                            <h:outputText value="#{item.creationDate}">
+                                <f:convertDateTime pattern="MM/dd/yyyy HH:mm:ss" />
+                            </h:outputText>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListBoardTitle_authorId}"/>
+                            </f:facet>
+                            <h:outputText value="#{item.authorId}"/>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListBoardTitle_categoryId}"/>
+                            </f:facet>
+                            <h:outputText value="#{item.categoryId}"/>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">
+                                <h:outputText value="&nbsp;"/>
+                            </f:facet>
+                            <h:commandLink action="#{boardController.prepareView}" value="#{bundle.ListBoardViewLink}"/>
+                            <h:outputText value=" "/>
+                            <h:commandLink action="#{boardController.prepareEdit}" value="#{bundle.ListBoardEditLink}"/>
+                            <h:outputText value=" "/>
+                            <h:commandLink action="#{boardController.destroy}" value="#{bundle.ListBoardDestroyLink}"/>
+                        </h:column>
+                    </h:dataTable>
+                </h:panelGroup>
+                <br />
+                <h:commandLink action="#{boardController.prepareCreate}" value="#{bundle.ListBoardCreateLink}"/>
+            </h:form>
+        </ui:define>
+    </ui:composition>
+
+</html>

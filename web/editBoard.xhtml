@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <ui:param name="board" value="#{boardController.selected}"/>
+        <title><h:outputText value="#{board.getName()} - CoffeeRoom"/></title>
+    </h:head>
+    <h:body>
+        <ui:composition template="/template.xhtml">
+            <ui:define name="body">
+                <h:panelGroup rendered="#{login.checkAuthenticate() == false}">
+                    <p>
+                        You need to be logged in to go here.<br/>
+                        Click <a href="/CoffeeRoom/login.xhtml?faces-redirect=true">HERE</a> to log in.<br/>
+                        Don't have an account yet? Create one <a href="/CoffeeRoom/register.xhtml?faces-redirect=true">HERE</a>!
+                    </p>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{login.checkAuthenticate()}">
+                    <ui:param name="currentUser" value="#{userController.findUserByConnectionToken(login.getConnectionToken())}"/>
+                    <h:panelGroup rendered="#{currentUser.roleId != 1}">
+                        <p>
+                            You cannot access this page, only administrators can.
+                        </p>
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{currentUser.roleId == 1}">
+                        <h:panelGroup id="messagePanel" layout="block">
+                            <h:messages errorStyle="color: red" infoStyle="color: green" layout="table"/>
+                        </h:panelGroup>
+                        <h:form class="form-horizontal">
+                            <fieldset>
+                                <legend><h:outputText value="Edit category #{board.getName()}"/></legend>
+                                <div class="form-group">
+                                    <h:outputLabel value="Title" for="name" class="col-lg-2 control-label"/>
+                                    <div class="col-lg-10">
+                                        <h:inputText class="form-control" id="name" value="#{boardController.selected.name}" title="Title of the board" required="true" requiredMessage="Please specify a title"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <h:outputLabel value="#{bundle.CreateBoardLabel_description}" for="description" class="col-lg-2 control-label"/>
+                                    <div class="col-lg-10">
+                                        <h:inputText class="form-control" id="description" value="#{boardController.selected.description}" title="#{bundle.CreateBoardTitle_description}"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <h:outputLabel value="Category" for="categoryId" class="col-lg-2 control-label"/>
+                                    <div class="col-lg-10">
+                                        <h:selectOneMenu id="categoryId" class="form-control" value="#{boardController.selected.categoryId}">
+                                            <f:selectItems value="#{categoryController.items}" var="categoryForBoard"
+                                                           itemLabel="#{categoryForBoard.name}" itemValue="#{categoryForBoard.id}"/>
+                                        </h:selectOneMenu>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-10 col-lg-offset-2">
+                                        <h:commandButton action="#{boardController.updateBoard()}" value="#{bundle.CreateBoardSaveLink}" class="btn btn-primary"/>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </h:form>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+
+
